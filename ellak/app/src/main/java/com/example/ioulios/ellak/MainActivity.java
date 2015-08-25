@@ -2,6 +2,7 @@ package com.example.ioulios.ellak;
 
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Handler;
 import android.os.Message;
 import android.support.v7.app.ActionBarActivity;
@@ -11,7 +12,6 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import java.util.Timer;
 import java.util.TimerTask;
@@ -25,12 +25,15 @@ public class MainActivity extends ActionBarActivity  implements View.OnClickList
     TextView tvaErwtisi ;
 
     Button ans[]=new Button[5];
+    Button confirm,next;
 
 
     ProgressBar pb;
     Timer myTimer;
     TimerTask myTask;
     int ecount=0,count=0;
+
+    int corAns=-1;
 
     ManageQuestions manQuestions ;
 
@@ -43,15 +46,22 @@ public class MainActivity extends ActionBarActivity  implements View.OnClickList
         tvaAithmosErwtisis = (TextView) findViewById(R.id.arithmosErwtisis) ;
         tvaErwtisi = (TextView) findViewById(R.id.Erwtisi) ;
 
+        ans[0] = (Button) findViewById(R.id.b0) ;
         ans[1] = (Button) findViewById(R.id.b1) ;
         ans[2] = (Button) findViewById(R.id.b2) ;
         ans[3] = (Button) findViewById(R.id.b3) ;
         ans[4] = (Button) findViewById(R.id.b4) ;
-        ans[0] = (Button) findViewById(R.id.b5) ;
+        confirm = (Button) findViewById(R.id.confirm) ;
+        next = (Button) findViewById(R.id.next) ;
+
+
 
         for (int i=0;i<5;i++) {
             ans[i].setOnClickListener(this);
         }
+
+        confirm.setOnClickListener(this);
+        next.setOnClickListener(this);
 
 
         pb = (ProgressBar) findViewById(R.id.pb);
@@ -115,7 +125,7 @@ public class MainActivity extends ActionBarActivity  implements View.OnClickList
         Message msg = new Message ();
         Bundle bun = new Bundle ();
         bun.putInt ("Value", Val);
-        msg.setData (bun);
+        msg.setData(bun);
         MyHandler.sendMessage(msg);
     }
 
@@ -135,15 +145,38 @@ public class MainActivity extends ActionBarActivity  implements View.OnClickList
     @Override
     public void onClick(View view) {
 
-        ecount++;
-        if(manQuestions.getCurrentType()== ManageQuestions.CustomType.EDUCATION && ecount>20){
-            Intent nAct = new Intent(MainActivity.this,NextA.class);
 
-            startActivity(nAct);
+        if(view==confirm && corAns>=0) {
+            ecount++;
+            if (manQuestions.getCurrentType() == ManageQuestions.CustomType.EDUCATION && ecount > 20) {
+                Intent nAct = new Intent(MainActivity.this, NextA.class);
+
+                startActivity(nAct);
+            }
+            manQuestions.setUserResponseToCurQuestion(corAns);
+            manQuestions.next() ;
+            for(int i=0;i<5;i++)
+                ans[i].setBackgroundResource(android.R.drawable.btn_default);
+            viewInfo() ;
+            corAns=-1;
+
+        }else if(view==next){
+            manQuestions.next() ;
+            for(int i=0;i<5;i++)
+                ans[i].setBackgroundResource(android.R.drawable.btn_default);
+            viewInfo() ;
+            corAns=-1;
+
+        } else if(view!=confirm) {
+            view.setBackgroundColor(Color.YELLOW);
+            for(int i=0;i<5;i++)
+                if(ans[i]!=view)
+                    ans[i].setBackgroundResource(android.R.drawable.btn_default);
+                else
+                    corAns=i;
+
         }
 
-        viewInfo() ;
-        manQuestions.next() ;
     }
 
     private void viewInfo()
@@ -154,7 +187,12 @@ public class MainActivity extends ActionBarActivity  implements View.OnClickList
         ivEikona.setImageBitmap(manQuestions.getCurQuestionImage());
         String cans[]=manQuestions.getCurAnswerTexts();
         int ans_no=cans.length;
+        for (int i=0;i<5;i++) {
+            ans[i].setVisibility(View.VISIBLE);
+
+        }
         for (int i=0;i<ans_no;i++) {
+            //ans[i].setVisibility(View.VISIBLE);
             ans[i].setText(cans[i]);
         }
         for (int i=4;i>=ans_no;i--){

@@ -37,11 +37,13 @@
     <LinearLayout
         android:orientation="vertical"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_centerHorizontal="true"
+        android:layout_height="wrap_content"
         android:layout_below="@+id/keimenoErwtisis"
         android:id="@+id/linearLayout"
-        android:weightSum="1">
+        android:weightSum="1"
+        android:layout_above="@+id/next"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true">
 
 
         <ImageView
@@ -54,22 +56,14 @@
             android:layout_toEndOf="@+id/arithmosErwtisis"
             android:layout_gravity="center_horizontal" />
 
-        <ScrollView
-            android:layout_width="match_parent"
-            android:layout_height="70dp"
-            android:id="@+id/scrollView2"
-            android:layout_gravity="center_horizontal" >
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textAppearance="?android:attr/textAppearanceLarge"
-                android:id="@+id/Erwtisi"
-                android:text="Το παραπάνω σήμα, τι συμβολίζει;"
-                android:layout_below="@+id/Eikona"
-                android:layout_centerHorizontal="true"
-                android:layout_weight="0.23" />
-        </ScrollView>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:id="@+id/Erwtisi"
+            android:text="Το παραπάνω σήμα, τι συμβολίζει;"
+            android:layout_below="@+id/Eikona"
+            android:layout_centerHorizontal="true" />
 
         <ProgressBar
             style="?android:attr/progressBarStyleHorizontal"
@@ -80,18 +74,18 @@
             android:indeterminate="false"
             android:layout_below="@+id/Erwtisi"
             android:layout_centerHorizontal="true"
-            android:layout_marginTop="32dp"
+            android:layout_marginTop="10dp"
             android:layout_gravity="center_horizontal" />
 
         <ScrollView
-            android:layout_width="250dp"
-            android:layout_height="143dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
             android:id="@+id/scrollView"
-            android:layout_marginTop="72dp"
             android:layout_below="@+id/Erwtisi"
             android:layout_centerHorizontal="true"
             android:layout_gravity="center_horizontal"
-            android:layout_weight="0.11">
+            android:layout_marginTop="10dp"
+            android:layout_weight="1">
 
             <LinearLayout
                 android:orientation="vertical"
@@ -99,43 +93,62 @@
                 android:layout_height="wrap_content">
 
                 <Button
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Next"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:text=""
+                    android:id="@+id/b0"
+                    android:layout_gravity="center_horizontal" />
+
+                <Button
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:text=""
                     android:id="@+id/b1"
                     android:layout_gravity="center_horizontal" />
 
                 <Button
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Prev"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:text=""
                     android:id="@+id/b2"
                     android:layout_gravity="center_horizontal" />
 
                 <Button
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="OK"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:text=""
                     android:id="@+id/b3"
                     android:layout_gravity="center_horizontal" />
 
                 <Button
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="New Button"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:text=""
                     android:id="@+id/b4"
                     android:layout_gravity="center_horizontal" />
 
-                <Button
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="New Button2"
-                    android:id="@+id/b5"
-                    android:layout_gravity="center_horizontal" />
             </LinearLayout>
         </ScrollView>
 
 
     </LinearLayout>
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="next"
+        android:id="@+id/next"
+        android:layout_alignParentBottom="true"
+        android:layout_toRightOf="@+id/keimenoErwtisis"
+        android:layout_toEndOf="@+id/keimenoErwtisis" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="confirm"
+        android:id="@+id/confirm"
+        android:layout_alignParentBottom="true"
+        android:layout_toLeftOf="@+id/next"
+        android:layout_toStartOf="@+id/next" />
 
 </RelativeLayout>
