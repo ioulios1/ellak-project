@@ -48,6 +48,7 @@ public class MainActivity extends ActionBarActivity  implements View.OnClickList
     int corAns=-1;
 
     int secondsTest ;
+    int seventyFivePercentSecond ;
     ManageQuestions manQuestions ;
 
     @Override
@@ -93,11 +94,13 @@ public class MainActivity extends ActionBarActivity  implements View.OnClickList
         if (new Random().nextInt(4) == 0)
         {
             secondsTest = 2100 /*35 * 60 */;
+            seventyFivePercentSecond = 1575 ;
             ManageQuestions.ALLQUESTIONS = 20 ;
         }
         else
         {
             secondsTest = 600 /* 10 * 60 */ ;
+            seventyFivePercentSecond = 450 ;
             ManageQuestions.ALLQUESTIONS = 10 ;
         }
 
@@ -177,6 +180,8 @@ public class MainActivity extends ActionBarActivity  implements View.OnClickList
             int tbp = b.getInt("Value");
 
                 pb.setProgress(tbp);
+                if (tbp == seventyFivePercentSecond)
+                    pb.setProgressDrawable(getResources().getDrawable(R.drawable.redpb));
         }
     };
 
