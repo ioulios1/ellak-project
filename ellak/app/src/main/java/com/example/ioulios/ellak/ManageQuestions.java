@@ -11,7 +11,7 @@ public class ManageQuestions {
 		EDUCATION, EXAM ;
 	}
 
-	private static final int ALLQUESTIONS = 20 ;
+	public static int ALLQUESTIONS = 20  ;
 
 	private Question[] arrayWithQuestions ;
 	private int index  = -1 ;
@@ -219,6 +219,21 @@ public class ManageQuestions {
 				}
 		}
 		return Math.round(((right) / (float) (ALLQUESTIONS)) * 100) ;
+	}
+
+	public String getScoreEducation()
+	{
+		int right = 0 ;
+		for (int i = 0 ;i<ALLQUESTIONS;i++)
+		{
+			for (int j = 0 ; j< arrayWithQuestions[i].getCorrectAnswers().length;j++)
+				if (arrayWithQuestions[i].getCorrectAnswers()[j] && j == arrayWithQuestions[i].getUserAnswerIndex())
+				{
+					right += 1 ;
+					break ;
+				}
+		}
+		return ("(" + (right) + "/" + (ALLQUESTIONS - remaining) + ")") ;
 	}
 
 	public Object getResults()
