@@ -47,8 +47,8 @@ public class Question {
 	{
 		if (index >= answerTexts.length)
 			userAnswerIndex = answerTexts.length-1 ;
-		else if (index < 0)
-			userAnswerIndex = 0 ;
+		else if (index < -1)
+			userAnswerIndex = -1 ;
 		else
 			userAnswerIndex = index ;
 	}
