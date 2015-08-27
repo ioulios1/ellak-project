@@ -102,7 +102,7 @@ public class Question {
 
 		imagePath = IMAGESPATHS[random.nextInt(4)] ;
 
-		questionImage = random.nextInt(3) == 0 ? null : getBitmapFromAsset(myParentContext,imagePath);
+		questionImage = random.nextInt(3) == 0 ? null : getBitmapFromAsset(myParentContext,"B02.jpg"/*imagePath*/);
 
 		int totalAnswers = random.nextInt(4)+2 ;
 		answerTexts = new String[totalAnswers] ;
