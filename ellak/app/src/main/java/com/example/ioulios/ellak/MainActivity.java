@@ -3,6 +3,7 @@ package com.example.ioulios.ellak;
 
 import android.content.Intent;
 import android.graphics.Color;
+import android.os.CountDownTimer;
 import android.os.Handler;
 import android.os.Message;
 import android.support.v7.app.ActionBarActivity;
@@ -50,6 +51,14 @@ public class MainActivity extends ActionBarActivity  implements View.OnClickList
     int secondsTest ;
     int seventyFivePercentSecond ;
     ManageQuestions manQuestions ;
+    CountDownTimer cdtNextQuestion ;
+    //Bundle resulsB=new ;
+
+    @Override
+    public void onBackPressed() {
+    }
+
+    int type;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -107,8 +116,13 @@ public class MainActivity extends ActionBarActivity  implements View.OnClickList
 
         //
         /// ManageQuestions
-        manQuestions = new ManageQuestions(this) ;        
-        ///
+        manQuestions = new ManageQuestions(this) ;
+        if (type ==1 )
+            manQuestions.setCurrentType(ManageQuestions.CustomType.EXAM);
+        else
+            manQuestions.setCurrentType(ManageQuestions.CustomType.EDUCATION);
+
+
         System.out.println("CurrentType: " + manQuestions.getCurrentType().toString());
         Toast.makeText(getApplicationContext(), ManageQuestions.ALLQUESTIONS + " Questions !", Toast.LENGTH_LONG).show() ;
         if (manQuestions.getCurrentType() == ManageQuestions.CustomType.EDUCATION) {
@@ -117,6 +131,24 @@ public class MainActivity extends ActionBarActivity  implements View.OnClickList
 
             toastScore = Toast.makeText(getApplicationContext(),"",Toast.LENGTH_SHORT);
             toastScore.setGravity(Gravity.CENTER, 0, 0);
+
+            cdtNextQuestion = new CountDownTimer(2000, 50) {
+
+                @Override
+                public void onTick(long arg0) {
+                    // TODO Auto-generated method stub
+
+                }
+
+                @Override
+                public void onFinish() {
+
+                    corAns = -1;
+                    manQuestions.next() ;
+                    viewInfo() ;
+                }
+            } ;
+
             //toastScore.setView(tvaAithmosErwtisis);
 
         }
@@ -171,6 +203,8 @@ public class MainActivity extends ActionBarActivity  implements View.OnClickList
     }
 
 
+
+
     Handler MyHandler = new Handler ()
     {
         @Override
@@ -199,8 +233,29 @@ public class MainActivity extends ActionBarActivity  implements View.OnClickList
                 }
                 */
                 manQuestions.setUserResponseToCurQuestion(corAns);
+
                 if (manQuestions.getCurrentType() == ManageQuestions.CustomType.EDUCATION)
                 {
+                   /*
+                    for (Button but : ans)
+                        but.refreshDrawableState();
+*/
+
+                    if (manQuestions.getCurCorrectAnswers()[corAns])
+                        ans[corAns].setBackgroundColor(Color.GREEN);
+                    else
+                    {
+                        ans[corAns].setBackgroundColor(Color.RED);
+                        for (int i = 0; i<manQuestions.getCurCorrectAnswers().length;i++)
+                            if (manQuestions.getCurCorrectAnswers()[i])
+                                ans[i].setBackgroundColor(Color.GREEN);
+                    }
+
+                    cdtNextQuestion.start();
+
+                    llAnswers.refreshDrawableState();
+                    svAnswers.refreshDrawableState();
+
                     toastScore.setText(manQuestions.getScoreEducation());
                     toastScore.show();
                 }
@@ -210,22 +265,27 @@ public class MainActivity extends ActionBarActivity  implements View.OnClickList
                     startActivity(nAct);
                     this.finish();
                 }
+
+            confirm.setImageDrawable(getResources().getDrawable(R.drawable.confirmdisable));
+            confirm.setEnabled(false);
+            if (manQuestions.getCurrentType() == ManageQuestions.CustomType.EXAM)
+            {
+                corAns = -1;
                 manQuestions.next() ;
-                for(int i=0;i<5;i++)
-                    ans[i].setBackgroundResource(android.R.drawable.btn_default);
                 viewInfo() ;
-                corAns=-1;
-                confirm.setImageDrawable(getResources().getDrawable(R.drawable.confirmdisable));
-                confirm.setEnabled(false);
+            }
+
+
 
         }else if(view==next){
             manQuestions.next() ;
             for(int i=0;i<5;i++)
                 ans[i].setBackgroundResource(android.R.drawable.btn_default);
-            viewInfo() ;
             corAns=-1;
             confirm.setImageDrawable(getResources().getDrawable(R.drawable.confirmdisable));
             confirm.setEnabled(false);
+            viewInfo() ;
+
 
         } else if(view!=confirm) {
             view.setBackgroundColor(Color.YELLOW);
@@ -243,7 +303,7 @@ public class MainActivity extends ActionBarActivity  implements View.OnClickList
     private void viewInfo()
     {
         tvaErwtisi.setText("" + manQuestions.getCurQuestionText());
-        tvaAithmosErwtisis.setText("" + manQuestions.getCurQuestionNumber()) ;
+        tvaAithmosErwtisis.setText("" + manQuestions.getCurQuestionNumber() + "/" + ManageQuestions.ALLQUESTIONS ) ;
         ivEikona.setImageBitmap(manQuestions.getCurQuestionImage());
         String cans[]=manQuestions.getCurAnswerTexts();
         int ans_no=cans.length;
@@ -271,6 +331,8 @@ public class MainActivity extends ActionBarActivity  implements View.OnClickList
             System.out.println("CorrectAnswer " + (tmpCounter++) + " : " + answer);
 
         System.out.println("Score: " + manQuestions.getScore());
+        for(int i=0;i<5;i++)
+            ans[i].setBackgroundResource(android.R.drawable.btn_default);
         svAnswers.scrollTo(0,0);
     }
 }
