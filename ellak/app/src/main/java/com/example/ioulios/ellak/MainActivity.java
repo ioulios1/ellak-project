@@ -148,8 +148,8 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
                     {
                         disableConfirm();
                         corAns = -1;
-                        if (manQuestions.next()) ;
-                        viewInfo() ;
+                        if (manQuestions.next())
+                            viewInfo() ;
                         onClickIsNotBusy = true ;
                     }
                 }
@@ -157,9 +157,9 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
             else if(view==ibNext)
             {
                 disableConfirm();
-                manQuestions.next() ;
                 corAns=-1;
-                viewInfo() ;
+                if (manQuestions.next())
+                    viewInfo() ;
                 onClickIsNotBusy = true ;
             }
             else
