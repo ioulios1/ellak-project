@@ -133,34 +133,21 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
                         bAns[manQuestions.getCurCorrectAnswer()].setBackgroundColor(Color.GREEN);
                     }
 
-                    cdtNextQuestion.start();
-
-                    llAnswers.refreshDrawableState();
-                    svAnswers.refreshDrawableState();
-
                     showToastMessage(manQuestions.getScoreEducation()) ;
+
+                    cdtNextQuestion.start();
                 }
                 else
                 {
                     if (manQuestions.haveFinishedQuestions())
                         completelyFininsh() ;
                     else
-                    {
-                        disableConfirm();
-                        corAns = -1;
-                        if (manQuestions.next())
-                            viewInfo() ;
-                        onClickIsNotBusy = true ;
-                    }
+                        nextQuestion() ;
                 }
             }
             else if(view==ibNext)
             {
-                disableConfirm();
-                corAns=-1;
-                if (manQuestions.next())
-                    viewInfo() ;
-                onClickIsNotBusy = true ;
+                nextQuestion() ;
             }
             else
             {
@@ -292,19 +279,23 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
                 if (manQuestions.haveFinishedQuestions())
                     completelyFininsh() ;
                 else
-                {
-                    disableConfirm();
-                    corAns = -1;
-                    if (manQuestions.next())
-                        viewInfo() ;
-                    onClickIsNotBusy = true ;
-                }
+                    nextQuestion() ;
+
             }
         } ;
     }
     //Prepare : END
 
     //Tools :
+    private void nextQuestion()
+    {
+        disableConfirm();
+        corAns=-1;
+        if (manQuestions.next())
+            viewInfo() ;
+        onClickIsNotBusy = true ;
+    }
+
     private void showToastMessage(String message)
     {
         toastMessage.setText(message);
