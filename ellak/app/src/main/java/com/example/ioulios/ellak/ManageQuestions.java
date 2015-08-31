@@ -1,258 +1,278 @@
 package com.example.ioulios.ellak;
 
 import android.content.Context;
+import android.content.res.AssetManager;
 import android.graphics.Bitmap;
-
+import android.graphics.BitmapFactory;
+import android.os.Bundle;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Random;
-
+/**
+ * Η κλάση ManageQuestions έχει σκοπό να βοηθήσει στην καλύτερη διαχείριση των ερωτήσεων και τη μείωση της πολυπλοκότητας της MainScreen activity .
+ * Αναλαμβάνει αποκλειστικά  την διαχείριση των ερωτήσεων και επιτρέπει στη MainScreen activity να ασχολείται μόνο με την εμφάνιση της διεπαφής .
+ * Σχεδιάστηκε για να σπάσει την υλοποίηση (του κομματιού της ομάδας μας) σε 2 κομμάτια ούτως ώστε να είναι ο κώδικας πιο κατανοητός πιο διαχειρίσιμος
+ * και πιο εύκολα μελλοντικά επεκτάσιμος ...
+ */
 public class ManageQuestions {
-
-	public enum CustomType {
+	/**
+	 * Τύπος για τη κατηγορία του Test .
+	 */
+	public enum TestType {
 		EDUCATION, EXAM ;
 	}
-
-	public static int ALLQUESTIONS = 20  ;
-
-	private Question[] arrayWithQuestions ;
-	private int index  = -1 ;
-	private Question curQuestion ; //Current Question
-	private int remaining = ALLQUESTIONS ;
-	private CustomType currentType ;
-
+	/**
+	 * Κρατάει τις απαντήσεις του χρήστη στις ερωτήσεις .
+	 */
+	private int[] userAnswerIndexs  ;
+	/**
+	 * Οι εικόνες των ερωτήσεων .
+	 */
+	private Bitmap[] questionImages ;
+	/**
+	 * Το σύνολο των ερωτήσεων .
+	 */
+	public int allTotalQuestions ;
+	/**
+	 * Ο δείκτης της τρέχων ερώτησης .
+	 */
+	private int index  ;
+	/**
+	 * Κρατάει πόσες ερωτήσεις απομένουν για να τελειώσει το test .
+	 */
+	private int remaining ;
+	/**
+	 * Κρατάει το τύπο του test .
+	 */
+	private TestType currentType ;
+	/**
+	 * Κρατάει ένα Context με απώτερο σκοπό να "βλέπει" η κλάση τα Assets .
+	 * Δίνετε στη κλάση στην δημιουργία της (Constactor) .
+	 */
 	private Context myParentContext ;
-	//Constructor :
-	public ManageQuestions(Context _myParentContext)
+	/**
+	 * Έχει όλη την πληροφορία των ερωτήσεων του Test που έρχονται από τη βάση δεδομένων .
+	 */
+	private TestSheet tsTest ;
+	/**
+	 * Έχει σαν τιμή τα δευτερόλεπτα που κρατάει το test .
+	 */
+	private int secondsForTest ;
+	/**
+	 * Έχει σαν τιμή τα δευτερόλεπτα που χρειάζονται για να ολοκληρωθεί το 75% του χρόνου που έχει το test .
+	 */
+	private int seventyFivePercentOfsecondsForTest ;
+
+	/**
+	 * Ο κατασκευαστής του αντικειμένου . Χρησιμοποιείται για την αρχικοποίηση του αντικειμένου προκειμένου να είναι
+	 * έτοιμο για να διαχειριστούμε τις ερωτήσεις ...
+	 * @param _myParentContext Παίρνει ένα context με απώτερο σκοπό να "βλέπει" η κλάση τα Assets.
+	 * @param subject Ο κωδικός του Θέματος για το test .
+	 * @param testType Ο κωδικός του τύπου για το test .
+	 */
+	public ManageQuestions(Context _myParentContext,int subject,int testType)
 	{
 		myParentContext = _myParentContext ;
 
-		arrayWithQuestions = new Question[ALLQUESTIONS] ;
+		tsTest = DBHandler.getInstance().CreateTestSheet(subject) ;
 
-		for (int i=0 ; i<ALLQUESTIONS;i++)
-			arrayWithQuestions[i] = new Question(myParentContext) ;
+		allTotalQuestions = tsTest.ReqCorAnswers ;
+		remaining = allTotalQuestions ;
 
-		index = 0 ;
-		curQuestion = arrayWithQuestions[0] ;
-
-		currentType = (new Random().nextBoolean()) ? CustomType.EDUCATION : CustomType.EXAM ;
-	}
-	//Constructor : END
-
-	//Operations :
-
-	public boolean next() //Return status : true if curQuestion go to the next
-	{
-		return next(true,true) ;
-	}
-	public boolean next(boolean overTake)
-	{
-		return next(overTake,true) ;
-	}
-	public boolean next(boolean overTake,boolean endNonStop)
-    {
-        if (overTake && remaining == 0)
-            return false ;
-
-        int tmpIndex = index ;
-
-        if (overTake)
-        {
-			do
-			{
-				if ( ++tmpIndex >= ALLQUESTIONS)
-				{
-					if (endNonStop )
-						tmpIndex = 0 ;
-					else
-						return false ;
-				}
-				if (arrayWithQuestions[tmpIndex].getUserAnswerIndex() == -1)
-				{
-					index = tmpIndex ;
-					curQuestion = arrayWithQuestions[index] ;
-				}
-
-			}while(arrayWithQuestions[tmpIndex].getUserAnswerIndex() != -1) ;
-
-        }
-        else
-        {
-			if ( ++tmpIndex >= ALLQUESTIONS)
-			{
-				if (endNonStop)
-					tmpIndex = 0 ;
-				else
-					return false ;
-			}
-			index = tmpIndex ;
-			curQuestion = arrayWithQuestions[index] ;
-		}
-
-        return true ;
-    }
-
-	public boolean previous()//Return status : true if curQuestion go to the previous
-	{
-		return previous(true,true) ;
-	}
-	public boolean previous(boolean overTake)
-	{
-		return previous(overTake, true) ;
-	}
-	public boolean previous(boolean overTake,boolean beginNonStop)
-	{
-		if (overTake && remaining == 0)
-			return false ;
-
-		int tmpIndex = index ;
-
-		if (overTake)
-		{
-			do
-			{
-				if ( --tmpIndex < 0)
-				{
-					if (beginNonStop )
-						tmpIndex = ALLQUESTIONS - 1 ;
-					else
-						return false ;
-
-				}
-				if (arrayWithQuestions[tmpIndex].getUserAnswerIndex() == -1)
-				{
-					index = tmpIndex ;
-					curQuestion = arrayWithQuestions[index] ;
-				}
-
-			}while(arrayWithQuestions[tmpIndex].getUserAnswerIndex() != -1) ;
-		}
+		if (testType == 0)
+			currentType = TestType.EDUCATION ;
 		else
 		{
-			if ( --tmpIndex < 0)
-			{
-				if (beginNonStop )
-					tmpIndex = ALLQUESTIONS - 1 ;
-				else
-					return false ;
-			}
-			index = tmpIndex ;
-			curQuestion = arrayWithQuestions[index] ;
+			currentType = TestType.EXAM ;
+			secondsForTest = tsTest.ExamTime * 60 ;
+			seventyFivePercentOfsecondsForTest = (int)((secondsForTest) * 0.75)  ;
 		}
+
+		fillImagesAndAnswersArray(tsTest) ;
+		index = 0 ;
+	}
+
+	/**
+	 * Πρακτικά , αλλάζει την τρέχουσα ερώτηση με την επόμενη μη απαντημένη ... (Ουσιαστικά αλλάζει ο δείκτης της τρέχουσας ερώτησης)
+	 * @return Επιστρέφει true αν άλλαξε η τρέχουσα ερώτηση με την αμέσως μη απαντημένη ερώτηση. Ή false αν δεν άλλαξε η τρέχουσα ερώτηση (Είναι όλες οι ερωτήσεις απαντημένες)
+	 */
+	public boolean next()
+	{
+		if (remaining == 0)
+			return false ;
+
+		do
+		{
+			if ( ++index >= allTotalQuestions)
+				index = 0 ;
+		} while(userAnswerIndexs[index] != -1) ;
 
 		return true ;
 	}
-
-	public void changeCurQuestion(int _index)
-	{
-		if (_index >= ALLQUESTIONS)
-			index = ALLQUESTIONS -1 ;
-		else if (_index < 0)
-			index = 0 ;
-		else
-			index = _index;
-
-		curQuestion = arrayWithQuestions[index];
-	}
-	//Operations : END
-
-	//set methods :
-	public void setCurrentType(CustomType type)
-	{
-		currentType = type ;
-	}
-
+	/**
+	 * Καταχωρείτε η απάντηση του χρήστη στην τρέχουσα ερώτηση.
+	 * @param answerIndex Η απάντηση του χρήστη (Ο δείκτης από το πίνακα των απαντήσεων της τρέχουσας ερώτησης) .
+	 */
 	public void setUserResponseToCurQuestion(int answerIndex) //-1 for Cancel
 	{
 		if (answerIndex != -1)
-			remaining -=  curQuestion.getUserAnswerIndex() == -1 ? 1 : 0 ;
+			remaining -=  userAnswerIndexs[index] == -1 ? 1 : 0 ;
 		else
-			remaining -=  curQuestion.getUserAnswerIndex() == -1 ? 0 : -1 ;
-		curQuestion.setUserAnswer(answerIndex);
+			remaining -=  userAnswerIndexs[index]  == -1 ? 0 : -1 ;
+
+		userAnswerIndexs[index] = answerIndex;
 	}
-	//set methods : END
 
-	//get methods :
 
+	/**
+	 * Επιστρέφει To μέγιστο πλήθος απαντήσεων από όλες τις ερωτήσεις του test
+	 * @return To μέγιστο πλήθος απαντήσεων .
+	 */
+	public int getMaxAnswers()
+	{
+		int max = 0 ;
+		for (Question quest : tsTest.Quests)
+			if (quest.AText.length > max)
+				max = quest.AText.length ;
+
+		return max ;
+	}
+	/**
+	 * Επιστρέφει την απάντηση του χρήστη για την τρέχουσας ερώτησης .
+	 * @return απάντηση του χρήστη (Ο δείκτης από το πίνακα των απαντήσεων της τρέχουσας ερώτησης).
+	 */
 	public int getUserResponseIndexToCurQuestion()
 	{
-		return curQuestion.getUserAnswerIndex();
+		return userAnswerIndexs[index];
 	}
-
+	/**
+	 * Επιστρέφει τον αριθμό της τρέχουσας ερώτησης.
+	 * @return Αριθμός τρέχων ερώτησης
+	 */
 	public int getCurQuestionNumber()
 	{
-		return curQuestion.getQuestionNumber() ;
+		return tsTest.Quests[index].QNum ;
 	}
-
+	/**
+	 * Επιστρέφει της εικόνα της ερώτησης .
+	 * @return Εικόνα {@link Bitmap} η null αν δεν έχει εικόνα η τρέχων ερώτηση .
+	 */
 	public Bitmap getCurQuestionImage()
 	{
-		return curQuestion.getQuestionImage() ;
+		return questionImages[index] ;
 	}
-
+	/**
+	 * Επιστρέφει το λεκτικό της ερώτησης .
+	 * @return Λεκτικό της τρέχων ερώτησης .
+	 */
 	public String getCurQuestionText()
 	{
-		return curQuestion.getQuestionText();
+		return tsTest.Quests[index].QText ;
 	}
-
+	/**
+	 * Επιστρέφει το μέγιστο χρόνο σε λεπτά για τη διάρκεια του test (Exam) .
+	 * @return Διαθέσιμα λεπτά για το test.
+	 */
+	public int getExamTime()
+	{
+		return tsTest.ExamTime ;
+	}
+	/**
+	 * Επιστρέφει τα λεκτικά των απαντήσεων .
+	 * @return Tα λεκτικά των απαντήσεων της τρέχων ερώτησης.
+	 */
 	public String[] getCurAnswerTexts()
 	{
-		return curQuestion.getAnswerTexts() ;
+		return tsTest.Quests[index].AText ;
 	}
-	public boolean [] getCurCorrectAnswers()
+	/**
+	 * Επιστρέφει την σωστή απάντηση .
+	 * @return Η σωστή απάντηση για την τρέχων ερώτηση (Ο δείκτης από το πίνακα των απαντήσεων της τρέχουσας ερώτησης).
+	 */
+	public int getCurCorrectAnswer()
 	{
-		return curQuestion.getCorrectAnswers() ;
+		return tsTest.Quests[index].CorAnswer ;
 	}
-	public CustomType getCurrentType()
+	/**
+	 * Επιστρέφει το μέγιστο χρόνο σε δευτερόλεπτα για τη διάρκεια του test (Exam) .
+	 * @return Διαθέσιμα δευτερόλεπτα για το test.
+	 */
+	public int getSecondsForTest()
+	{
+		return secondsForTest ;
+	}
+	/**
+	 * Επιστρέφει το χρόνο σε δευτερόλεπτα για την ολοκλήρωση του 75% του test (Exam) .
+	 * @return Δευτερόλεπτα για την ολοκλήρωση του 75% του test.
+	 */
+	public int getSeventyFivePercentOfsecondsForTest()
+	{
+		return seventyFivePercentOfsecondsForTest ;
+	}
+	/**
+	 * Επιστρέφει το πλήθος όλων των ερωτήσεων .
+	 * @return Σύνολο ερωτήσεων .
+	 */
+	public int getAllTotalQuestions()
+	{
+		return allTotalQuestions;
+	}
+	/**
+	 * Επιστρέφει την κατηγορία του Test .
+	 * @return Κατηγορία του Test .
+	 */
+	public TestType getCurrentType()
 	{
 		return currentType ;
 	}
-
-	///get methods - Future :
-	public int getScore()
-	{
-		int right = 0 ;
-		for (int i = 0 ;i<ALLQUESTIONS;i++)
-		{
-			for (int j = 0 ; j< arrayWithQuestions[i].getCorrectAnswers().length;j++)
-				if (arrayWithQuestions[i].getCorrectAnswers()[j] && j == arrayWithQuestions[i].getUserAnswerIndex())
-				{
-					right += 1 ;
-					break ;
-				}
-		}
-		return Math.round(((right) / (float) (ALLQUESTIONS)) * 100) ;
-	}
-
+	/**
+	 * Επιστρέφει ένα λεκτικό με το "score" του χρήστη example : "(3/7)" σωστές από τις συνολικά μέχρι στιγμής απαντημένες ερωτήσεις.
+	 * @return Το "score" του χρήστη .
+	 */
 	public String getScoreEducation()
 	{
 		int right = 0 ;
-		for (int i = 0 ;i<ALLQUESTIONS;i++)
+		for (int i = 0 ;i<allTotalQuestions;i++)
 		{
-			for (int j = 0 ; j< arrayWithQuestions[i].getCorrectAnswers().length;j++)
-				if (arrayWithQuestions[i].getCorrectAnswers()[j] && j == arrayWithQuestions[i].getUserAnswerIndex())
-				{
-					right += 1 ;
-					break ;
-				}
+			if (tsTest.Quests[i].CorAnswer == userAnswerIndexs[i])
+				right++ ;
+
 		}
-		return ("(" + (right) + "/" + (ALLQUESTIONS - remaining) + ")") ;
+		return ("(" + (right) + "/" + (allTotalQuestions - remaining) + ")") ;
 	}
 
-	public Object getResults()
+	/**
+	 * Επιστρέφει ένα {@link Bundle} με τις πληροφορίες που χρειάζονται για τα στατιστικά αποτελέσματα του test .
+	 * @return Τα στατιστικά αποτελέσματα του test.
+	 */
+	public Bundle getBundleOfResults()
 	{
-		//Future will be implemented
+		Bundle bu = new Bundle() ;
 
-		return this ;
+		bu.putInt("Subject",tsTest.SubjectID);
+		bu.putInt("ExamTime",tsTest.ExamTime);
+		bu.putInt("ReqCorAnswers",tsTest.ReqCorAnswers);
+
+		int allAnsQuests, rightQuests, mistakeQuests ;
+		allAnsQuests = rightQuests = mistakeQuests = 0 ;
+
+		for (int i = 0 ;i<tsTest.Quests.length;i++)
+			if (userAnswerIndexs[i] != -1)
+				if (userAnswerIndexs[i] == tsTest.Quests[i].CorAnswer)
+					rightQuests++ ;
+				else
+					mistakeQuests++ ;
+
+		bu.putInt("allAnsQuests",tsTest.ReqCorAnswers - remaining);
+		bu.putInt("rightQuests",rightQuests);
+		bu.putInt("mistakeQuests",mistakeQuests);
+
+		return bu ;
 	}
 
-	 /*
-	public Question[] getArrayWithQuestions()
-	{
-		return arrayWithQuestions ;
-	}
-	*/
-	///get methods - Future : END
-	//get methods : END
-
-	//Status :
+	/** Επιστρέφει true αν έχουν απαντηθεί όλες οι ερωτήσεις ή false αν δεν έχουν απαντηθεί όλες
+	 * @return Επιστρέφει μια μεταβλητή τύπου {@link Boolean}.
+	 */
 	public boolean haveFinishedQuestions()
 	{
 		if (remaining == 0)
@@ -260,19 +280,42 @@ public class ManageQuestions {
 		else
 			return false ;
 	}
-	//Status : END
 
-	//test Tools :
-	public void randomPrepare()
+	/**
+	 * Γεμίζει-αρχικοποιεί τους πίνακες των εικόνων και απαντήσεων του χρήστη .
+	 * @param tsTmp Ένα αντικείμενο τύπου {@link TestSheet} για να πάρει τα path names των εικόνων και το πλήθος των ερωτήσεων .
+	 */
+	private void fillImagesAndAnswersArray(TestSheet tsTmp)
 	{
-		remaining = ALLQUESTIONS ;
-		index = 0 ;
-		curQuestion = arrayWithQuestions[index] ;
-		for (int i = 0 ; i<ALLQUESTIONS;i++)
+		userAnswerIndexs = new int[tsTmp.ReqCorAnswers] ;
+		questionImages = new Bitmap[tsTmp.ReqCorAnswers] ;
+		Random random = new Random();
+		for (int i = 0 ; i< tsTmp.ReqCorAnswers; i++)
 		{
-			arrayWithQuestions[i].fullRandom();
-			arrayWithQuestions[i].setQuestionNumber(i+1);
+			userAnswerIndexs[i] = -1 ;
+			questionImages[i] = random.nextInt(3) == 0 ? null : getBitmapFromAsset(myParentContext,tsTmp.Quests[i].PicName);
 		}
+		//Λογικά θα αλλάξει η συνάρτηση "getBitmapFromAsset" για να επιστρέφει την εικόνα από το δίσκο και όχι από τα Assets .
 	}
-	//test Tools : END
+
+	/**
+	 *  Επιστρέφει  μια εικόνα bitmap από τα Assets .
+	 *   @param context  Το context που έχει τα Assets.
+	 *   @param filePath Το μονοπάτι του αρχείου στα Assets.
+	 * 	 @return Ένα αντικείμενο μιας εικόνας τύπου {@link Bitmap}.
+	 */
+	private static Bitmap getBitmapFromAsset(Context context, String filePath) {
+		AssetManager assetManager = context.getAssets();
+
+		InputStream istr;
+		Bitmap bitmap = null;
+		try {
+			istr = assetManager.open(filePath);
+			bitmap = BitmapFactory.decodeStream(istr);
+		} catch (IOException e) {
+			// handle exception
+		}
+
+		return bitmap;
+	}
 }
